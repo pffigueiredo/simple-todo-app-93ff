@@ -1,9 +1,22 @@
 
+import { db } from '../db';
+import { tasksTable } from '../db/schema';
 import { type DeleteTaskInput } from '../schema';
+import { eq } from 'drizzle-orm';
 
 export const deleteTask = async (input: DeleteTaskInput): Promise<{ success: boolean }> => {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is deleting a task from the database by ID.
-    // It should return a success indicator showing whether the deletion was successful.
-    return Promise.resolve({ success: true });
+  try {
+    // Delete task by ID
+    const result = await db.delete(tasksTable)
+      .where(eq(tasksTable.id, input.id))
+      .execute();
+
+    // Check if any rows were affected (task existed and was deleted)
+    const success = (result.rowCount ?? 0) > 0;
+    
+    return { success };
+  } catch (error) {
+    console.error('Task deletion failed:', error);
+    throw error;
+  }
 };
